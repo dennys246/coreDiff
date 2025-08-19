@@ -4,9 +4,9 @@ import numpy as np
 from matplotlib import pyplot as plt
 from glob import glob
 
-from src.data.dataset import DataManager
-from src.logging import save_history, load_history
-from src.generate import generate
+from corediff.data.dataset import DataManager
+from corediff.log import save_history, load_history
+from corediff.generate import generate
 
 class Trainer:
 
@@ -156,7 +156,10 @@ class Trainer:
         self.plot_history(self.diffusor.config.save_dir)
         
         # Save diffusor and diffusor as .keras files
-        self.diffusor.save(os.path.join(path,"diffusor.keras"))
+        if path[-5:] != "keras":
+            path = os.path.join(path, "diffusor.keras")
+
+        self.diffusor.save(path)
         print(f"Models saved in {path}...")
 
     def plot_history(self, save_dir):
