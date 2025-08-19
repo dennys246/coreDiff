@@ -44,8 +44,11 @@ _ = corediff.generate(model, count = 10, save_dir = "path/to/output/dir/")
 ```
 
 ```bash
+# Install the package to run locally
+pip install -e .
 
-python3 main.py --mode generate --synthetics 25
+# Run the package to start training a coreDiffusor
+corediff --mode generate --synthetics 25
 
 ```
 
@@ -57,7 +60,7 @@ import corediffusor as corediff
 
 model = corediff.load_model(model_path)
 
-trainer = corediff.trainer(model)
+trainer = corediff.trainer(model_path)
 
 trainer.train(batch_size = 8, epochs = 10)
 
