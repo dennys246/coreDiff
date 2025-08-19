@@ -2,7 +2,7 @@ import json, atexit, copy, os
 from glob import glob
 
 config_template = {
-            "save_dir": "keras/snowgan/",
+            "save_dir": "keras/corediff/",
             "model_filename": "diffusor.keras",
             "dataset": "dennys246/rocky_mountain_snowpack",
             "datatype": "core",
