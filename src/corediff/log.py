@@ -3,7 +3,7 @@ import matplotlib.pyplot as plt
 
 def save_history(save_dir, loss, trained_data):
     """
-    Plot and save the diffusor and diffusor history loaded in the Diffusor object
+    Plot and save the diffusion and diffusion history loaded in the diffusion object
 
     Function arguments:
         save_dir (str) - Directory to save the history files
@@ -28,8 +28,8 @@ def save_history(save_dir, loss, trained_data):
 
 def load_history(save_dir):
     """
-    Load diffusor/diffusor loss history and trained data from text files
-    and assign them to the diffusor object.
+    Load diffusion/diffusion loss history and trained data from text files
+    and assign them to the diffusion object.
 
     Function arguments:
         save_dir (str) - Directory where the history files are stored
@@ -47,7 +47,7 @@ def load_history(save_dir):
     loss = []
     trained_data = []
 
-    # Load diffusor loss
+    # Load diffusion loss
     if os.path.exists(diffusor_path):
         with open(diffusor_path, "r") as file:
             loss = [float(line.strip()) for line in file if line.strip()]

@@ -8,7 +8,7 @@ def generate(model, count = 1, save_dir = None, filename_prefix = "synthetic_"):
     Generate synthetic images using the trained model.
     
     Function arguments:
-        model (Diffusor) - The trained model to generate images from
+        model (diffusion) - The trained model to generate images from
         batch_size (int) - Number of images to generate in one batch
         save (bool) - Whether to save the generated images to disk
     
@@ -16,56 +16,57 @@ def generate(model, count = 1, save_dir = None, filename_prefix = "synthetic_"):
         x_t (tf.Tensor) - Generated images tensor of shape [batch_size, height,
         width, channels]
     """
+    if save_dir == None:
+        save_dir = os.path.join("keras","corediff", "synthetic_images")
+
     # Check if the destimation exists
     previously_generated = 0
     if os.path.exists(save_dir): # If folder exists
         # Check for previously generated images
-        previous_images = glob(f"{save_dir}synthetic_images/*.png")
+        previous_images = glob(os.path.join(save_dir, "synthetic_images", "*.png"))
         for previous_image in previous_images:
             image_number = int(previous_image.split("_")[-1][:-4])
             if image_number > previously_generated:
                 previously_generated = image_number
     else: # If not
         print(f"Output folder doesn't exist, creating directory")
-        os.makedirs(f"{save_dir}", exist_ok = True) # Create folder
+        os.makedirs(save_dir, exist_ok = True) # Create folder
 
-    synthetics = []
-    for ind in range(count):
-        # Generate noise to start the diffusion process
-        channels = getattr(model.config, "channels", 3)  # Default to 3 if not set
-        x_t = tf.random.normal((count, *model.config.resolution, channels))  # Start with noise
+    # Generate noise to start the diffusion process
+    channels = getattr(model.config, "channels", 3)  # Default to 3 if not set
+    x_t = tf.random.normal((count, *model.config.resolution, channels))  # Start with noise
 
-        for t in reversed(range(model.config.T)):
-            t_tensor = tf.fill((count, 1), t)
+    for t in reversed(range(model.config.T)):
+        t_tensor = tf.fill((count, 1), t)
 
-            # Predict noise at current timestep
-            epsilon_theta = model(x_t, t_tensor) # May just be (x_t, t_tensor)
+        # Predict noise at current timestep
+        epsilon_theta = model(x_t, t_tensor) # May just be (x_t, t_tensor)
 
-            alpha_t = tf.convert_to_tensor(model.alpha[t], dtype=tf.float32)
-            alpha_bar_t = tf.convert_to_tensor(model.alpha_bar[t], dtype=tf.float32)
-            beta_t = tf.convert_to_tensor(model.beta[t], dtype=tf.float32)
+        alpha_t = tf.convert_to_tensor(model.alpha[t], dtype=tf.float32)
+        alpha_bar_t = tf.convert_to_tensor(model.alpha_bar[t], dtype=tf.float32)
+        beta_t = tf.convert_to_tensor(model.beta[t], dtype=tf.float32)
 
-            # Estimate x at t-1
-            coef1 = 1.0 / tf.sqrt(alpha_t)
-            coef2 = (1 - alpha_t) / tf.sqrt(1 - alpha_bar_t)
+        # Estimate x at t-1
+        coef1 = 1.0 / tf.sqrt(alpha_t)
+        coef2 = (1 - alpha_t) / tf.sqrt(1 - alpha_bar_t)
 
-            mean = coef1 * (x_t - coef2 * epsilon_theta)
+        mean = coef1 * (x_t - coef2 * epsilon_theta)
 
-            if t > 1:
-                noise = tf.random.normal(tf.shape(x_t))
-                sigma = tf.sqrt(beta_t) * tf.ones_like(x_t)
-                x_t = mean + sigma * noise
-            else:
-                x_t = mean  # Final step is deterministic
-        x_t = tf.clip_by_value(x_t, clip_value_min=-1.0, clip_value_max=1.0)
-        
-        if save_dir: 
-            filepath = os.path.join(model.config.save_dir, f"{filename_prefix}_{previously_generated + ind + 1}.png")
-            save_image(x_t, filepath)
-        
-        synthetics.append(x_t)
+        if t > 1:
+            noise = tf.random.normal(tf.shape(x_t))
+            sigma = tf.sqrt(beta_t) * tf.ones_like(x_t)
+            x_t = mean + sigma * noise
+        else:
+            x_t = mean  # Final step is deterministic
     
-    return synthetics
+    x_t = tf.clip_by_value(x_t, clip_value_min=-1.0, clip_value_max=1.0)
+    
+    if save_dir: 
+        for t in range(x_t.shape[0]):
+            filepath = os.path.join(model.config.save_dir, f"{filename_prefix}_{previously_generated + t + 1}.png")
+            save_image(x_t[t], filepath)
+    
+    return x_t
 
 
 def save_image(image, filepath):

@@ -3,27 +3,27 @@ from glob import glob
 
 config_template = {
             "save_dir": "keras/corediff/",
-            "model_filename": "diffusor.keras",
+            "model_filename": "diffusion.keras",
             "dataset": "dennys246/rocky_mountain_snowpack",
             "datatype": "core",
-            "architecture": "diffusor",
+            "architecture": "diffusion",
             "resolution": [50, 100], # Height, Width
             "images": None,
             "trained_pool": None,
             "validation_pool": None,
             "test_pool": None,
             "model_history": None,
-            "synthetics": 10,
+            "n_samples": 10,
             "epochs": 10,
             "current_epoch": 0,
             "batch_size": 8,
-            "learning_rate": 1e-5,
+            "learning_rate": 2e-4,
             "negative_slope": 0.25,
             "T": 1000,
             "beta_low": 1e-4,
             "beta_high": 0.02,
-            "enc_chs": [64, 128, 256, 512, 1024],
-            "dec_chs": [1024, 512, 256, 128, 64],
+            "enc_chs": [64, 128, 256, 512],
+            "dec_chs": [512, 256, 128, 64],
             "kernel_size": [4, 4],
             "kernel_stride": (2, 2),
             "zero_padding": None,
@@ -58,7 +58,7 @@ class build:
         
         This class handles loading and saving configuration settings for the model."""
         self.config_filepath = config_filepath
-        if os.path.exists(config_filepath): # Try and load config if folder passed in
+        if os.path.exists(self.config_filepath): # Try and load config if folder passed in
             print(f"Loading config file: {self.config_filepath}")
             config_json = self.load_config(self.config_filepath)
             config_json['rebuild'] = False # Set to false if able to load a pre-existing model
@@ -109,7 +109,7 @@ class build:
             config_json = config_template
         return config_json
 
-    def configure(self, save_dir, model_filename, dataset, datatype, architecture, resolution, images, trained_pool, validation_pool, test_pool, model_history, synthetics, epochs, current_epoch, batch_size, learning_rate, beta_low, beta_high, negative_slope, T, enc_chs, dec_chs, kernel_size, kernel_stride, zero_padding, padding, optimizer, beta_1, beta_2, loss, train_ind, trained_data, rebuild):
+    def configure(self, save_dir, model_filename, dataset, datatype, architecture, resolution, images, trained_pool, validation_pool, test_pool, model_history, n_samples, epochs, current_epoch, batch_size, learning_rate, beta_low, beta_high, negative_slope, T, enc_chs, dec_chs, kernel_size, kernel_stride, zero_padding, padding, optimizer, beta_1, beta_2, loss, train_ind, trained_data, rebuild):
         """
         Configure the model with the provided parameters.
         Function arguments:
@@ -126,7 +126,7 @@ class build:
         self.validation_pool = validation_pool
         self.test_pool = test_pool
         self.model_history = model_history
-        self.synthetics = synthetics
+        self.n_samples = n_samples
         self.epochs = epochs
         self.current_epoch = current_epoch
         self.batch_size = batch_size
@@ -169,7 +169,7 @@ class build:
             "validation_pool": self.validation_pool,
             "test_pool": self.test_pool,
             "model_history": self.model_history,
-            "synthetics": self.synthetics,
+            "n_samples": self.n_samples,
             "epochs": self.epochs,
             "current_epoch": self.current_epoch,
             "batch_size": self.batch_size,

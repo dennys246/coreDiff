@@ -1,3 +1,4 @@
+import os
 import tensorflow as tf
 import numpy as np
 
@@ -7,7 +8,7 @@ from corediff.models.decoder import Decoder
 from corediff.config import build as configure
 
 
-class Diffusor(tf.keras.Model):
+class Diffusion(tf.keras.Model):
 
     def __init__(self, config):
         super().__init__()
@@ -41,6 +42,8 @@ class Diffusor(tf.keras.Model):
         self.optimizer = tf.keras.optimizers.Adam(learning_rate=self.config.learning_rate)
 
     def call(self, x, t):
+        t = tf.reshape(t, [-1])
+
         if self.resolution == None:
             self.resolution = x.shape[1:]
 
@@ -66,19 +69,15 @@ class Diffusor(tf.keras.Model):
         return self.output_layer(x)
     
     def q_sample(self, x, t, noise):
-        # Ensure x has shape [batch, height, width, channels]
-        if x.shape.rank == 5 and x.shape[-1] == 1:
-            x = tf.squeeze(x, axis=-1)
-        
-        t_flat = tf.reshape(t, [-1])  # shape (batch_size,)
-        sqrt_alpha_bar_t = tf.gather(tf.sqrt(self.alpha_bar), t_flat)
-        sqrt_one_minus_alpha_bar_t = tf.gather(tf.sqrt(1.0 - self.alpha_bar), t_flat)
-
-        # Broadcast to match x shape
-        sqrt_alpha_bar_t = tf.reshape(sqrt_alpha_bar_t, [-1, 1, 1, 1])
-        sqrt_one_minus_alpha_bar_t = tf.reshape(sqrt_one_minus_alpha_bar_t, [-1, 1, 1, 1])
-
-        return sqrt_alpha_bar_t * x + sqrt_one_minus_alpha_bar_t * noise
+        t_flat = tf.reshape(t, [-1])                # shape (B,)
+        idx = t_flat - 1                            # 0-based index into self.alpha_bar
+        sqrt_ab = tf.sqrt(self.alpha_bar)           # [T]
+        sqrt_omt = tf.sqrt(1.0 - self.alpha_bar)
+        a = tf.gather(sqrt_ab, idx)
+        b = tf.gather(sqrt_omt, idx)
+        a = tf.reshape(a, [-1, 1, 1, 1])
+        b = tf.reshape(b, [-1, 1, 1, 1])
+        return a * x + b * noise
     
 
 def load_model(model_path, args = None):
@@ -89,7 +88,7 @@ def load_model(model_path, args = None):
         model_path (str): Path to the pre-trained model file.
         
     Returns:
-        Diffusor: The loaded Diffusor model.
+        diffusion: The loaded diffusion model.
     """
     split = model_path.split("/")
 
@@ -104,6 +103,6 @@ def load_model(model_path, args = None):
     config.save_dir = "/".join(split) + "/"
 
     # Load the discriminator
-    diffusor = Diffusor(config)
-    diffusor.model.build((config.resolution[0], config.resolution[1], 3))
-    return diffusor
+    diffusion = Diffusion(config)
+    diffusion.build((config.resolution[0], config.resolution[1], 3))
+    return diffusion

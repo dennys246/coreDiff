@@ -8,7 +8,7 @@ from corediff.trainer import Trainer as trainer
 from corediff.generate import generate
 from corediff.config import build as configuration
 from corediff.utils import configure_device
-from corediff.models.diffusor import Diffusor, load_model
+from corediff.models.diffusion import Diffusion, load_model
 
 # Define a clean public API
 __all__ = [
@@ -16,6 +16,6 @@ __all__ = [
     "generate",
     "configuration",
     "configure_device",
-    "Diffusor",
+    "Diffusion",
     "load_model"
 ]

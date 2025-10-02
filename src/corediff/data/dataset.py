@@ -46,9 +46,10 @@ class DataManager:
 
         datatype = translator[datatype]
         
+        print("Gathering training batch of images...")
         while count < batch_size and self.config.train_ind < len(self.dataset['train']):
             sample = self.dataset['train'][self.config.train_ind]
-
+            print(f"Checking image at index {self.config.train_ind}")
             if sample['datatype'] == datatype:
 
                 image = sample['image']
@@ -57,16 +58,18 @@ class DataManager:
                     image = tf.convert_to_tensor(np.array(image))  # Convert from PIL to tensor
                 
                 image = tf.image.resize(image, self.config.resolution)
-                print(f"Max - {tf.reduce_max(image).numpy()} | Min {tf.reduce_min(image).numpy()} ")
-                
+
                 if image.shape.rank == 2:  # grayscale image
                     image = tf.expand_dims(image, -1)
 
                 scaled_image = (tf.cast(image, tf.float32) / 127.5) - 1.0
 
                 batch.append(scaled_image)
-
+                
+                print(f"Added image {self.config.train_ind} to batch...")
                 count += 1
+
+            self.config.train_ind += 1
 
         if len(batch) > 0:
             return np.stack(batch)
