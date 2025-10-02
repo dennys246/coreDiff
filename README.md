@@ -11,10 +11,10 @@ datasets:
 - rmdig/rocky_mountain_snowpack
 ---
 
-# The coreDiffusor
+# The coreDiff
 
-A Diffusor trained on ~1,300 images of snow cores from the Rocky Mountain Snowpack dataset, captured during the 2024-2025 ski season to understand features of the data. Long term use of this is for higher level embedding
-of feature's learned from the diffusor in other tasks.
+A Diffusion model trained on ~1,300 images of snow cores from the Rocky Mountain Snowpack dataset, captured during the 2024-2025 ski season to understand features of the data. Long term use of this is for higher level embedding
+of feature's learned from the diffusion in other tasks.
 
 ## Model Details
 - **Framework**: TensorFlow, Keras
@@ -31,32 +31,38 @@ of feature's learned from the diffusor in other tasks.
 
 ## Exploratory Usage
 
+```bash
+# Install the package to run locally
+pip install -e .
+
+# Run the package to start training a corediff
+corediff --mode generate --synthetics 25
+
+```
+
 ```python
-# Generate using the coreDiffusor library
-import corediffusor as corediff
+# Generate using the corediff library
+import corediff
 
 # Load pre-trained model from hugging face repo
-model = corediff.load_model("rmdig/corediffusor")
+model = corediff.load_model("rmdig/corediff")
 
 # Generate images with the model
 _ = corediff.generate(model, count = 10, save_dir = "path/to/output/dir/")
 
 ```
 
-```bash
-# Install the package to run locally
-pip install -e .
+## Training Usage
 
-# Run the package to start training a coreDiffusor
-corediff --mode generate --synthetics 25
+```bash
+
+python3 main.py --mode train --epochs 10 --lr 0.001
 
 ```
 
-## Training Usage
-
 ```python
-# Import coreDiffusor trainer class...
-import corediffusor as corediff
+# Import corediff trainer class...
+import corediff as corediff
 
 model = corediff.load_model(model_path)
 
@@ -65,12 +71,6 @@ trainer = corediff.trainer(model_path)
 trainer.train(batch_size = 8, epochs = 10)
 
 trainer.save_model()
-```
-
-```bash
-
-python3 main.py --mode train --epochs 10 --lr 0.001
-
 ```
 
 ## Limitations
