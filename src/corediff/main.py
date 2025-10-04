@@ -13,9 +13,11 @@ def main():
     args = parse_args()
 
     if args.save_dir is None:
-        args.save_dir = os.path.join(os.getcwd(), "keras/corediff/")
-        config.model_filename = f"{args.save_dir}diffusion.keras"
-        config.architecture = "diffusion"
+        if args.checkpoint:
+            args.save_dir = os.path.dirname(args.checkpoint)
+        else:
+            args.save_dir = os.path.join(os.getcwd(), "keras/corediff/")
+            config.checkpoint = os.path.join(args.save_dir, "diffusion.keras")
 
     if not os.path.exists(args.save_dir):
         print(f"Creating save directory: {args.save_dir}")
