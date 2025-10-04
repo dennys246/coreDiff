@@ -39,6 +39,7 @@ class Diffusion(tf.keras.Model):
         self.output_layer = tf.keras.layers.Conv2D(3, 1, 1)
 
         self.loss_fn = tf.keras.losses.MeanSquaredError()
+        
         self.optimizer = tf.keras.optimizers.Adam(learning_rate=self.config.learning_rate)
 
     def call(self, x, t):
