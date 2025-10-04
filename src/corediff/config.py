@@ -61,7 +61,6 @@ class build:
         if os.path.exists(self.config_filepath): # Try and load config if folder passed in
             print(f"Loading config file: {self.config_filepath}")
             config_json = self.load_config(self.config_filepath)
-            config_json['rebuild'] = False # Set to false if able to load a pre-existing model
         else:
             print("WARNING: Config not found, building from template...")
             config_json = copy.deepcopy(config_template)
