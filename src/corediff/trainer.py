@@ -107,7 +107,7 @@ class Trainer:
                 
                 # Save the models state
                 if batch % 10 == 0:
-                    self.save_model(os.path.join(self.save_dir,"synthetic_images", f"batch_{batch}")) # Need to consider more dynamic way to do this and remove old history
+                    self.save_model(os.path.join(self.save_dir, f"batch_{batch}")) # Need to consider more dynamic way to do this and remove old history
                 
                 batch += 1
 
