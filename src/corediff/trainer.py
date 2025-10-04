@@ -1,4 +1,4 @@
-import os, atexit
+import os, atexit, keras
 import tensorflow as tf
 import numpy as np
 from matplotlib import pyplot as plt
@@ -25,7 +25,7 @@ class Trainer:
         # diffusion and diffusion models
         self.diffusion = diffusion
         if os.path.exists(f"{self.diffusion.config.save_dir}/diffusion.keras"):
-            self.diffusion.load_weights(f"{self.diffusion.config.save_dir}/diffusion.keras")
+            self.diffusion.model = keras.models.load_model(self.diffusion.config.checkpoint)
             print("diffusion weights loaded successfully")
         else:
             print("diffusion saved weights not found, new model initialized")
