@@ -24,11 +24,6 @@ class Trainer:
 
         # diffusion and diffusion models
         self.diffusion = diffusion
-        if os.path.exists(f"{self.diffusion.config.save_dir}/diffusion.keras"):
-            self.diffusion.model = keras.models.load_model(self.diffusion.config.checkpoint)
-            print("diffusion weights loaded successfully")
-        else:
-            print("diffusion saved weights not found, new model initialized")
 
         self.save_dir = self.diffusion.config.save_dir # Save dictory for the model and it's diffusorerated images
 
@@ -77,8 +72,8 @@ class Trainer:
             batched_images = glob(os.path.join(self.diffusion.config.save_dir, "synthetic_images", "*batch*.png"))
             for batch_image in batched_images:
                 batch_number = int(batch_image.split('batch_')[1].split('_')[0])
-                if batch_number > batch:
-                    batch = batch_number
+                if batch_number >= batch:
+                    batch = batch_number + 1
 
             trainable_data = True
             while trainable_data:

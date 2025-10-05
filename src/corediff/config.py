@@ -50,15 +50,8 @@ class build:
     """
 
     def __init__(self, config_filepath):
-        """
-        Initialize the configuration builder with a path to a config file.
-        
-        Function arguments:
-            config_filepath (str) - Path to the configuration file to load or save
-        
-        This class handles loading and saving configuration settings for the model."""
         self.config_filepath = config_filepath
-        if os.path.exists(self.config_filepath): # Try and load config if folder passed in
+        if os.path.exists(config_filepath): # Try and load config if folder passed in
             print(f"Loading config file: {self.config_filepath}")
             config_json = self.load_config(self.config_filepath)
         else:
@@ -68,7 +61,6 @@ class build:
         self.configure(**config_json) # Build configuration
 
         atexit.register(self.save_config)
-
         
     def __repr__(self):
         return '\n'.join([f"{key}: {value}" for key, value in self.__dict__.items()])
@@ -192,3 +184,38 @@ class build:
             "rebuild": self.rebuild
         }
         return config
+
+def configure(config, args):
+    """
+    Configure the model based on command line arguments or default values.
+    If no arguments are provided, it uses default values.
+    
+    Args:
+        args (argparse.Namespace): Command line arguments. If None, uses default values.
+    """
+    # Configure the discriminator
+    if args:
+        if args.save_dir: config.save_dir = args.save_dir
+        if args.checkpoint: config.checkpoint = args.checkpoint
+        if args.n_samples: config.n_samples = args.n_samples
+        if args.batch_size: config.batch_size = args.batch_size
+        if args.epochs: config.epochs = args.epochs
+        if args.T: config.T = args.T
+        if args.learning_rate: config.learning_rate = args.learning_rate
+        if args.beta_low: config.beta_low = args.beta_low
+        if args.beta_high: config.beta_high = args.beta_high
+        if args.negative_slope : config. negative_slope = args.negative_slope
+
+        # Process and configure list variables
+        if isinstance(args.resolution, str): args.resolution = [int(datum) for datum in args.resolution.split(' ')]
+        if args.resolution: config.resolution = args.resolution
+        if isinstance(args.kernel_size, str): args.kernel_size = [int(datum) for datum in args.kernel_size.split(' ')]
+        if args.kernel_size: config.kernel_size = args.kernel_size
+        if isinstance(args.kernel_stride, str): args.kernel_stride = [int(datum) for datum in args.kernel_stride.split(' ')]
+        if args.kernel_stride: config.kernel_stride = args.kernel_stride
+        if isinstance(args.enc_chs, str): args.enc_chs = [int(datum) for datum in args.enc_chs.split(' ')]
+        if args.enc_chs : config.enc_chs = args.enc_chs
+        if isinstance(args.dec_chs, str): args.dec_chs = [int(datum) for datum in args.dec_chs.split(' ')]
+        if args.dec_chs : config.dec_chs = args.dec_chs
+        
+    return config 

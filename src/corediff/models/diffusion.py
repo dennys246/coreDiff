@@ -5,13 +5,13 @@ import numpy as np
 from corediff.models.encoder import Encoder
 from corediff.models.bottleneck import Bottleneck
 from corediff.models.decoder import Decoder
-from corediff.config import build as configure
+from corediff.config import build
 
 
 class Diffusion(tf.keras.Model):
 
-    def __init__(self, config):
-        super().__init__()
+    def __init__(self, config, **kwargs):
+        super(Diffusion, self).__init__(**kwargs)
 
         # Attach config to the model
         self.config = config
@@ -79,29 +79,16 @@ class Diffusion(tf.keras.Model):
         a = tf.reshape(a, [-1, 1, 1, 1])
         b = tf.reshape(b, [-1, 1, 1, 1])
         return a * x + b * noise
+
+def load_diffusion(checkpoint, config = None):
     
-
-def load_model(model_path, args = None):
-    """
-    Load a pre-trained model from the specified path.
+    if not config:
+        split = checkpoint.split("/")
+        config = build("/".join(split[:-1]) + "/diffusion.keras")
     
-    Args:
-        model_path (str): Path to the pre-trained model file.
-        
-    Returns:
-        diffusion: The loaded diffusion model.
-    """
-    split = model_path.split("/")
-
-    # Check if the model path exists
-    if not os.path.exists(model_path):
-        print(f"Model file not found at {model_path}, creating a new discriminator model.")
-        os.makedirs("/".join(split[:-1]), exist_ok = True)
-
-    config = configure("/".join(split[:-1]) + "/discriminator.keras")
-
-    config.model_filename = split.pop() # Get the model filename from the path
-    config.save_dir = "/".join(split) + "/"
+        # Get the model filename from the path
+        config.checkpoint = checkpoint
+        config.save_dir = "/".join(split) + "/"
 
     # Load the discriminator
     diffusion = Diffusion(config)

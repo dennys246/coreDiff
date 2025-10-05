@@ -23,42 +23,6 @@ def configure_device(args):
     if args.mixed_precision == True : # Use mixed precision for faster training
         set_global_policy("mixed_float16")
 
-def configure(config_filepath, args = None):
-    """
-    Configure the model based on command line arguments or default values.
-    If no arguments are provided, it uses default values.
-    
-    Args:
-        args (argparse.Namespace): Command line arguments. If None, uses default values.
-    """
-    # Configure the discriminator
-    config = configuration(config_filepath)
-    if args:
-        if args.save_dir: config.save_dir = args.save_dir
-        if args.checkpoint: config.checkpoint = args.checkpoint
-        if args.n_samples: config.n_samples = args.n_samples
-        if args.batch_size: config.batch_size = args.batch_size
-        if args.epochs: config.epochs = args.epochs
-        if args.T: config.T = args.T
-        if args.learning_rate: config.learning_rate = args.learning_rate
-        if args.beta_low: config.beta_low = args.beta_low
-        if args.beta_high: config.beta_high = args.beta_high
-        if args.negative_slope : config. negative_slope = args.negative_slope
-
-        # Process and configure list variables
-        if isinstance(args.resolution, str): args.resolution = [int(datum) for datum in args.resolution.split(' ')]
-        if args.resolution: config.resolution = args.resolution
-        if isinstance(args.kernel_size, str): args.kernel_size = [int(datum) for datum in args.kernel_size.split(' ')]
-        if args.kernel_size: config.kernel_size = args.kernel_size
-        if isinstance(args.kernel_stride, str): args.kernel_stride = [int(datum) for datum in args.kernel_stride.split(' ')]
-        if args.kernel_stride: config.kernel_stride = args.kernel_stride
-        if isinstance(args.enc_chs, str): args.enc_chs = [int(datum) for datum in args.enc_chs.split(' ')]
-        if args.enc_chs : config.enc_chs = args.enc_chs
-        if isinstance(args.dec_chs, str): args.dec_chs = [int(datum) for datum in args.dec_chs.split(' ')]
-        if args.dec_chs : config.dec_chs = args.dec_chs
-        
-    return config 
-
 def load_dataset(dataset_dir):
     return datasets.load_dataset(dataset_dir)
 
