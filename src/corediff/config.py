@@ -3,7 +3,7 @@ from glob import glob
 
 config_template = {
             "save_dir": "keras/corediff/",
-            "model_filename": "diffusion.keras",
+            "checkpoint": "keras/corediff/diffusion.keras",
             "dataset": "dennys246/rocky_mountain_snowpack",
             "datatype": "core",
             "architecture": "diffusion",
@@ -100,14 +100,14 @@ class build:
             config_json = config_template
         return config_json
 
-    def configure(self, save_dir, model_filename, dataset, datatype, architecture, resolution, images, trained_pool, validation_pool, test_pool, model_history, n_samples, epochs, current_epoch, batch_size, learning_rate, beta_low, beta_high, negative_slope, T, enc_chs, dec_chs, kernel_size, kernel_stride, zero_padding, padding, optimizer, beta_1, beta_2, loss, train_ind, trained_data, rebuild):
+    def configure(self, save_dir, checkpoint, dataset, datatype, architecture, resolution, images, trained_pool, validation_pool, test_pool, model_history, n_samples, epochs, current_epoch, batch_size, learning_rate, beta_low, beta_high, negative_slope, T, enc_chs, dec_chs, kernel_size, kernel_stride, zero_padding, padding, optimizer, beta_1, beta_2, loss, train_ind, trained_data, rebuild):
         """
         Configure the model with the provided parameters.
         Function arguments:
         """
         #-------------------------------- Model Set-Up -------------------------------#
         self.save_dir = save_dir
-        self.model_filename = model_filename
+        self.checkpoint = checkpoint
         self.dataset = dataset
         self.datatype = datatype
         self.architecture = architecture
@@ -150,7 +150,7 @@ class build:
         """
         config = {
             "save_dir": self.save_dir,
-            "model_filename": self.model_filename,
+            "checkpoint": self.checkpoint,
             "dataset": self.dataset,
             "datatype": self.datatype,
             "architecture": self.architecture,

@@ -98,7 +98,7 @@ class Trainer:
                 
                 # diffusorerate synthetic images to the batch folder to track progress
                 if self.n_samples:
-                    _ = generate(self.diffusion, count = self.diffusion.config.n_samples, save_dir = f"{self.save_dir}/synthetic_images/", filename_prefix = f'batch_{batch}_synthetic')
+                    _ = generate(self.diffusion, count = self.diffusion.config.n_samples, save_dir = f"{self.diffusion.config.save_dir}/synthetic_images/", filename_prefix = f'batch_{batch}_synthetic')
                 
                 # Save the models state
                 if batch % 10 == 0:

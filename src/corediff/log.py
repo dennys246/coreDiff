@@ -17,12 +17,12 @@ def save_history(save_dir, loss, trained_data):
     os.makedirs(save_dir, exist_ok = True)
 
     # Save the current diffusorerate loss progress
-    with open(f"{save_dir}diffusor_loss.txt", "w") as file:
+    with open(os.path.join(save_dir,"diffusor_loss.txt"), "w") as file:
         for logged_loss in loss:
             file.write(f"{logged_loss}\n")
 
 
-    with open(f"{save_dir}trained.txt", "w") as file:
+    with open(os.path.join(save_dir, "trained.txt"), "w") as file:
         for trained in trained_data:
             file.write(f"{trained}\n")
 

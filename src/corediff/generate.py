@@ -56,7 +56,7 @@ def generate(model, count = 1, save_dir = None, filename_prefix = "synthetic_"):
     
     if save_dir: 
         for t in range(x_t.shape[0]):
-            filepath = os.path.join(model.config.save_dir, f"{filename_prefix}_{previously_generated + t + 1}.png")
+            filepath = os.path.join(model.config.save_dir, "synthetic_images", f"{filename_prefix}_{previously_generated + t + 1}.png")
             save_image(x_t[t], filepath)
     
     return x_t

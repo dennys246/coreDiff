@@ -23,6 +23,8 @@ class Diffusion(tf.keras.Model):
         self.alpha = 1.0 - self.beta
         self.alpha_bar = tf.math.cumprod(self.alpha)
 
+        self.loss_fn = self.get_loss()
+        
         # Build encoder
         self.encoding_blocks = []
         for enc_ch, dec_ch in zip(self.config.enc_chs, self.config.dec_chs): # For each feature block (reversed)
@@ -37,10 +39,14 @@ class Diffusion(tf.keras.Model):
             self.decoding_blocks.append(Decoder(encoder_dec_ch * 2, decoder_dec_ch, self.config.kernel_size, self.config.kernel_stride))
 
         self.output_layer = tf.keras.layers.Conv2D(3, 1, 1)
-
-        self.loss_fn = tf.keras.losses.MeanSquaredError()
         
-        self.optimizer = tf.keras.optimizers.Adam(learning_rate=self.config.learning_rate)
+        self.optimizer = self.get_optimizer()
+
+    def get_optimizer(self):
+        return tf.keras.optimizers.Adam(learning_rate=self.config.learning_rate)
+
+    def get_loss(self):
+        return tf.keras.losses.MeanSquaredError()
 
     def call(self, x, t):
         t = tf.reshape(t, [-1])
@@ -80,17 +86,25 @@ class Diffusion(tf.keras.Model):
         b = tf.reshape(b, [-1, 1, 1, 1])
         return a * x + b * noise
 
-def load_diffusion(checkpoint, config = None):
-    
-    if not config:
-        split = checkpoint.split("/")
-        config = build("/".join(split[:-1]) + "/diffusion.keras")
-    
-        # Get the model filename from the path
-        config.checkpoint = checkpoint
-        config.save_dir = "/".join(split) + "/"
+def load_diffusion(checkpoint, config=None):
+    split = checkpoint.split("/")
+    if config is None:
+        config = build("/".join(split[:-1]))
 
-    # Load the discriminator
     diffusion = Diffusion(config)
-    diffusion.build((config.resolution[0], config.resolution[1], 3))
+
+    # Build the model by calling it once
+    dummy_x = tf.zeros((1, *config.resolution, 3))
+    dummy_t = tf.ones((1,), dtype=tf.int32)
+    _ = diffusion(dummy_x, dummy_t)
+
+    # Load weights (if they exist)
+    weights_path = checkpoint if os.path.exists(checkpoint) else checkpoint + ".index"
+    if os.path.exists(weights_path):
+        diffusion.load_weights(checkpoint)
+        print(f"Loaded weights from {checkpoint}")
+    else:
+        print(f"⚠️ Warning: checkpoint not found at {checkpoint}, initialized new model.")
+
     return diffusion
+
